@@ -1,5 +1,5 @@
 "use client";
-import { pre } from "framer-motion/client";
+import { useWixClient } from "@/hook/useWixClient";
 import React, { useEffect, useState } from "react";
 
 const Add = ({
@@ -37,6 +37,22 @@ const Add = ({
         }
     };
 
+    const wixClient = useWixClient();
+
+    const addItem = async () => {
+        const response = await wixClient.currentCart.addToCurrentCart({
+            lineItems: [
+                {
+                    catalogReference: {
+                        appId: process.env.NEXT_PUBLIC_WIX_APP_ID!,
+                        catalogItemId: productId,
+                        ...(variantId && { options: { variantId } }),
+                    },
+                    quantity: stockNumber,
+                },
+            ],
+        });
+    };
     return (
         <div className='flex flex-col gap-4'>
             <h4 className='font-medium'>Choose a Quantity</h4>
@@ -69,7 +85,10 @@ const Add = ({
                         {"Don't"} miss it
                     </div>
                 </div>
-                <button className='w-36 text-sm rounded-3xl ring-1 ring-cart text-cart py-2 px-4 hover:bg-cart hover:text-white disabled:cursor-not-allowed disabled:bg-pink-200 disabled:text-white disabled:ring-none'>
+                <button
+                    onClick={addItem}
+                    className='w-36 text-sm rounded-3xl ring-1 ring-cart text-cart py-2 px-4 hover:bg-cart hover:text-white disabled:cursor-not-allowed disabled:bg-pink-200 disabled:text-white disabled:ring-none'
+                >
                     Add to Cart
                 </button>
             </div>

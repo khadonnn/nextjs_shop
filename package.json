@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@wix/ecom": "^1.0.864",
     "@wix/sdk": "^1.15.4",
     "@wix/stores": "^1.0.310",
     "framer-motion": "^11.13.5",
