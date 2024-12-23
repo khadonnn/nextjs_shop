@@ -1,6 +1,7 @@
+"use client";
 import { useRef, useEffect } from "react";
 
-export function useHorizontalScroll<T extends HTMLElement>() {
+export default function useHorizontalScroll<T extends HTMLElement>() {
     const elRef = useRef<T | null>(null);
 
     useEffect(() => {

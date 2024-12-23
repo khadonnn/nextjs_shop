@@ -9,12 +9,19 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@wix/sdk": "^1.15.4",
+    "@wix/stores": "^1.0.310",
     "framer-motion": "^11.13.5",
+    "install": "^0.13.0",
+    "isomorphic-dompurify": "^2.19.0",
+    "js-cookie": "^3.0.5",
     "next": "14.2.2",
+    "npm": "^10.9.2",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
