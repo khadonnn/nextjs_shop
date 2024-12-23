@@ -4,8 +4,9 @@ import { useWixClient } from "@/hook/useWixClient";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import { useCartStore } from "@/hook/useCartStore";
 const NavIcons = () => {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
@@ -47,6 +48,17 @@ const NavIcons = () => {
         setIsProfileOpen(false);
         router.push(logoutUrl); //chuyen toi href cua onClick logout
     };
+
+    const { counter, getCart } = useCartStore();
+
+    useEffect(() => {
+        getCart(wixClient);
+        // const getCart = async () => {
+        //     const response = await wixClient.currentCart.getCurrentCart();
+        //     // console.log(response);
+        // };
+        // getCart();
+    }, [wixClient, getCart]);
     return (
         <div className='flex items-center gap-4 xl:gap-6 relative'>
             <Image
@@ -83,7 +95,7 @@ const NavIcons = () => {
                     onClick={() => setIsCartOpen((prev) => !prev)}
                 />
                 <div className='absolute -top-4 -right-4 w-6 h-6 bg-cart rounded-full text-white text-sm items-center justify-center flex'>
-                    2
+                    {counter}
                 </div>
             </div>
             {isCartOpen && <CartModal />}

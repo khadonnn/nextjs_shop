@@ -1,4 +1,5 @@
 "use client";
+import { useCartStore } from "@/hook/useCartStore";
 import { useWixClient } from "@/hook/useWixClient";
 import React, { useEffect, useState } from "react";
 
@@ -11,7 +12,7 @@ const Add = ({
     variantId: string;
     stockNumber: number;
 }) => {
-    console.log(stockNumber);
+    // console.log(stockNumber);
     const [quantity, setQuantity] = useState(1);
     //TEMPORARY
     // const stock = 4;
@@ -38,21 +39,8 @@ const Add = ({
     };
 
     const wixClient = useWixClient();
+    const { addItem, isLoading } = useCartStore();
 
-    const addItem = async () => {
-        const response = await wixClient.currentCart.addToCurrentCart({
-            lineItems: [
-                {
-                    catalogReference: {
-                        appId: process.env.NEXT_PUBLIC_WIX_APP_ID!,
-                        catalogItemId: productId,
-                        ...(variantId && { options: { variantId } }),
-                    },
-                    quantity: stockNumber,
-                },
-            ],
-        });
-    };
     return (
         <div className='flex flex-col gap-4'>
             <h4 className='font-medium'>Choose a Quantity</h4>
@@ -86,8 +74,11 @@ const Add = ({
                     </div>
                 </div>
                 <button
-                    onClick={addItem}
-                    className='w-36 text-sm rounded-3xl ring-1 ring-cart text-cart py-2 px-4 hover:bg-cart hover:text-white disabled:cursor-not-allowed disabled:bg-pink-200 disabled:text-white disabled:ring-none'
+                    onClick={() =>
+                        addItem(wixClient, productId, variantId, quantity)
+                    }
+                    disabled={isLoading}
+                    className='w-36 text-sm rounded-3xl ring-1 ring-cart text-cart py-2 px-4 hover:bg-cart hover:text-white disabled:cursor-not-allowed disabled:bg-pink-200 disabled:ring-0 disabled:text-white disabled:ring-none'
                 >
                     Add to Cart
                 </button>
