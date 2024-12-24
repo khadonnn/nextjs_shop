@@ -33,7 +33,7 @@ const ListPage = async ({ searchParams }: any) => {
                 </div>
             </div>
             {/* FILTER */}
-            <Suspense>
+            <Suspense fallback={"loading..."}>
                 <Filter />
             </Suspense>
             {/* PRODUCST */}
