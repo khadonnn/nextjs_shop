@@ -1,6 +1,6 @@
+import { create } from "zustand";
 import { currentCart } from "@wix/ecom";
 import { WixClient } from "@/context/wixContext";
-import { create } from "zustand";
 
 type CartState = {
     cart: currentCart.Cart;
@@ -9,19 +9,22 @@ type CartState = {
     getCart: (wixClient: WixClient) => void;
     addItem: (
         wixClient: WixClient,
-        porductId: string,
+        productId: string,
         variantId: string,
         quantity: number,
     ) => void;
     removeItem: (wixClient: WixClient, itemId: string) => void;
 };
+
 export const useCartStore = create<CartState>((set) => ({
-    cart: [],
-    isLoading: false,
+    cart: { lineItems: [] },
+    isLoading: true,
     counter: 0,
+
     getCart: async (wixClient) => {
         try {
             const cart = await wixClient.currentCart.getCurrentCart();
+            console.log(cart);
             set({
                 cart: cart || [],
                 isLoading: false,
@@ -31,24 +34,25 @@ export const useCartStore = create<CartState>((set) => ({
             set((prev) => ({ ...prev, isLoading: false }));
         }
     },
-    addItem: async (wixClient, porductId, variantId, quantity) => {
-        set((prev) => ({ ...prev, isLoading: true }));
+    addItem: async (wixClient, productId, variantId, quantity) => {
+        set((state) => ({ ...state, isLoading: true }));
         const response = await wixClient.currentCart.addToCurrentCart({
             lineItems: [
                 {
                     catalogReference: {
                         appId: process.env.NEXT_PUBLIC_WIX_APP_ID!,
-                        catalogItemId: porductId,
+                        catalogItemId: productId,
                         ...(variantId && { options: { variantId } }),
                     },
                     quantity: quantity,
                 },
             ],
         });
+
         set({
             cart: response.cart,
             counter: response.cart?.lineItems.length,
-            isLoading: true,
+            isLoading: false,
         });
     },
     removeItem: async (wixClient, itemId) => {

@@ -3,13 +3,13 @@ import Image from "next/image";
 import React from "react";
 import { media as wixMedia } from "@wix/sdk";
 import { useWixClient } from "@/hook/useWixClient";
-
+import { currentCart } from "@wix/ecom";
 const CartModal = () => {
     //TEMPORAry
     // const cartItems = true;
     const wixClient = useWixClient();
     const { cart, isLoading, removeItem } = useCartStore();
-    console.log(cart);
+    // console.log(cart);
     return (
         <div className='w-max absolute p-4 rounded-md shadow-[0_3px_10px_rgba(0,0,0,0.2)] bg-white top-10 right-0 flex flex-col gap-6 z-20'>
             {!cart.lineItems ? (
@@ -102,7 +102,16 @@ const CartModal = () => {
                     <div>
                         <div className='flex items-center justify-between font-semibold'>
                             <span>Tổng: </span> {/* SUBTOTAL */}
-                            <span>${cart.subtotal?.amount}</span>
+                            <span>
+                                $
+                                {
+                                    (
+                                        cart as currentCart.Cart & {
+                                            subtotal?: { amount: number };
+                                        }
+                                    ).subtotal?.amount
+                                }
+                            </span>
                         </div>
                         <p className='text-gray-500 text-sm mt-2 mb-4'>
                             Phí vận chuyển sẽ được tính tại bước thanh toán
