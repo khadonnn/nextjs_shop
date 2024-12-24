@@ -33,7 +33,9 @@ const ListPage = async ({ searchParams }: any) => {
                 </div>
             </div>
             {/* FILTER */}
-            <Filter />
+            <Suspense>
+                <Filter />
+            </Suspense>
             {/* PRODUCST */}
             <h1 className='mt-12 text-xl font-semibold '>
                 {cat?.collection?.name} For You!
