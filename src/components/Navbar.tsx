@@ -4,7 +4,7 @@ import SearchBar from "@/components/SearchBar";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { Suspense } from "react";
 
 const NavIcons = dynamic(() => import("@/components/NavIcons"), { ssr: false }); //SEO
 const Navbar = () => {
@@ -36,7 +36,9 @@ const Navbar = () => {
                 {/* RIGHT */}
                 <div className='w-2/3 xl:w-1/2 flex items-center justify-between gap-8'>
                     <SearchBar />
-                    <NavIcons />
+                    <Suspense fallback={"loading"}>
+                        <NavIcons />
+                    </Suspense>
                 </div>
             </div>
         </div>
