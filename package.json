@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@stripe/react-stripe-js": "^3.1.1",
+    "@stripe/stripe-js": "^5.4.0",
     "@wix/ecom": "^1.0.864",
     "@wix/sdk": "^1.15.4",
     "@wix/stores": "^1.0.310",
@@ -20,6 +22,7 @@
     "npm": "^10.9.2",
     "react": "^18",
     "react-dom": "^18",
+    "stripe": "^17.5.0",
     "zustand": "^5.0.2"
   },
   "devDependencies": {

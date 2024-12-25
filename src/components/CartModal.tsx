@@ -4,11 +4,43 @@ import React from "react";
 import { media as wixMedia } from "@wix/sdk";
 import { useWixClient } from "@/hook/useWixClient";
 import { currentCart } from "@wix/ecom";
+import { loadStripe } from "@stripe/stripe-js";
+const stripePromise = loadStripe(
+    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
+);
 const CartModal = () => {
     //TEMPORAry
     // const cartItems = true;
     const wixClient = useWixClient();
     const { cart, isLoading, removeItem } = useCartStore();
+    //handle
+    const handleCheckout = async () => {
+        const stripe = await stripePromise;
+        if (!stripe) return;
+        if (!cart.lineItems) return;
+        const lineItems = cart.lineItems.map((item) => ({
+            productName: item.productName?.original,
+            images: item.image
+                ? [wixMedia.getScaledToFillImageUrl(item.image, 400, 400, {})]
+                : ["https://via.placeholder.com/150"],
+            price: item.price?.amount,
+            quantity: item.quantity,
+        }));
+        const response = await fetch("/api/create-checkout-session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ lineItems }),
+        });
+
+        const { id } = await response.json();
+        // Redirect to Stripe Checkout
+        if (id) {
+            await stripe.redirectToCheckout({ sessionId: id });
+        } else {
+            console.error("Failed to create checkout session.");
+        }
+    };
+
     // console.log(cart);
     return (
         <div className='w-max absolute p-4 rounded-md shadow-[0_3px_10px_rgba(0,0,0,0.2)] bg-white top-10 right-0 flex flex-col gap-6 z-20'>
@@ -123,6 +155,7 @@ const CartModal = () => {
                             <button
                                 className='rounded-md py-3 px-4 bg-black text-white disabled:cursor-not-allowed disabled:opacity-80'
                                 disabled={isLoading}
+                                onClick={handleCheckout}
                             >
                                 Thanh toán
                             </button>
