@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import Stripe from "stripe";
-
+import { NextResponse } from "next/server";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: Request) {
@@ -8,7 +8,7 @@ export async function POST(req: Request) {
         const body = await req.json();
 
         const { lineItems } = body;
-        console.log(lineItems);
+        // console.log(lineItems);
         if (!lineItems || lineItems.length === 0) {
             return new Response(
                 JSON.stringify({ error: "No items in the cart." }),
@@ -50,44 +50,45 @@ export async function POST(req: Request) {
         );
     }
 }
-export async function GET(req: NextApiRequest, res: NextApiResponse) {
-    // Kiểm tra và lấy `id` từ query params
-    const session_id = Array.isArray(req.query.session_id)
-        ? req.query.session_id[0]
-        : req.query.id;
-    console.log(`Session ID: ${session_id}`);
+export async function GET(request: Request) {
+    // Lấy session_id từ query string
+    const { searchParams } = new URL(request.url);
+    const session_id = searchParams.get("session_id");
 
-    // Kiểm tra tính hợp lệ của id
-    if (!session_id || typeof session_id !== "string") {
-        return res.status(400).json({ error: "Invalid session ID" });
+    if (!session_id) {
+        console.log("Session ID missing in request.");
+        return NextResponse.json(
+            { error: "Session ID is required" },
+            { status: 400 },
+        );
     }
 
     try {
-        // Lấy session từ Stripe
+        // Lấy thông tin session từ Stripe
         const session = await stripe.checkout.sessions.retrieve(session_id);
-
-        // Kiểm tra session nếu không tồn tại
-        if (!session) {
-            return res.status(404).json({ error: "Session not found" });
-        }
-
-        // Lấy line items từ session
+        // console.log("Stripe session:", session);
+        // Lấy thêm danh sách sản phẩm trong session
         const lineItems = await stripe.checkout.sessions.listLineItems(
             session_id,
         );
-
-        // Log session chi tiết
-        console.log("Session Details:", session);
-
-        // Trả về kết quả dưới dạng JSON
-        return res.status(200).json({ session, lineItems });
+        // console.log("Stripe line items:", lineItems);
+        return NextResponse.json(
+            {
+                id: session.id,
+                email: session.customer_details?.email || "",
+                name: session.customer_details?.name || "",
+                description: lineItems.data[0]?.description || "",
+                amount_total: session.amount_total,
+                currency: lineItems.data[0]?.currency,
+                quantity: lineItems.data[0]?.quantity,
+            },
+            { status: 200 },
+        );
     } catch (error: any) {
-        // Log chi tiết lỗi
-        console.error("Error retrieving session:", error);
-
-        // Trả về lỗi cho client
-        return res
-            .status(500)
-            .json({ error: error.message || "Failed to retrieve session" });
+        console.error("Error fetching session:", error.message);
+        return NextResponse.json(
+            { error: "Internal server error" },
+            { status: 500 },
+        );
     }
 }
