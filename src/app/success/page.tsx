@@ -11,6 +11,14 @@ const SuccessPageContent = () => {
     useEffect(() => {
         if (!orderId) return;
         const timer = setTimeout(() => {
+            //localStorage
+            const existingOrders = JSON.parse(
+                localStorage.getItem("orderList") || "[]",
+            );
+            const newOrder = { id: existingOrders.length + 1, orderId };
+            const updatedOrders = [...existingOrders, newOrder];
+            localStorage.setItem("orderList", JSON.stringify(updatedOrders));
+            //orders page
             router.push("/orders/" + orderId);
         }, 5000);
 

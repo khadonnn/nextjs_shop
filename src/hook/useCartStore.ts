@@ -14,6 +14,7 @@ type CartState = {
         quantity: number,
     ) => void;
     removeItem: (wixClient: WixClient, itemId: string) => void;
+    deleteCart: (wixClient: WixClient) => void;
 };
 
 export const useCartStore = create<CartState>((set) => ({
@@ -65,5 +66,20 @@ export const useCartStore = create<CartState>((set) => ({
             counter: response.cart?.lineItems.length,
             isLoading: false,
         });
+    },
+    deleteCart: async (wixClient: WixClient) => {
+        set((state) => ({ ...state, isLoading: true }));
+        try {
+            await wixClient.currentCart.deleteCurrentCart();
+            set({
+                cart: { lineItems: [] },
+                counter: 0,
+                isLoading: false,
+            });
+            console.log("Success! Deleted cart");
+        } catch (error) {
+            console.error("Failed to delete cart:", error);
+            set((state) => ({ ...state, isLoading: false }));
+        }
     },
 }));

@@ -12,7 +12,7 @@ const CartModal = () => {
     //TEMPORAry
     // const cartItems = true;
     const wixClient = useWixClient();
-    const { cart, isLoading, removeItem } = useCartStore();
+    const { cart, isLoading, removeItem, deleteCart } = useCartStore();
     //handle
     const handleCheckout = async () => {
         const stripe = await stripePromise;
@@ -25,6 +25,7 @@ const CartModal = () => {
                 : ["https://via.placeholder.com/150"],
             price: item.price?.amount,
             quantity: item.quantity,
+            id: item._id,
         }));
         const response = await fetch("/api/create-checkout-session", {
             method: "POST",
@@ -35,6 +36,7 @@ const CartModal = () => {
         const { id } = await response.json();
         // Redirect to Stripe Checkout
         if (id) {
+            deleteCart(wixClient);
             await stripe.redirectToCheckout({ sessionId: id });
         } else {
             console.error("Failed to create checkout session.");

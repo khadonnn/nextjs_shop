@@ -1,24 +1,30 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import Image from "next/image";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+
+type Product = {
+    description: string;
+    quantity: number;
+    currency: string;
+};
 
 type OrderDetails = {
     id: string;
     email: string;
     name: string;
-    description: string;
     amount_total: number;
     currency: string;
-    quantity: number;
+    mappedLineItems: any[];
+    products: Product[];
 };
-
 function OrderPage() {
     const { id: session_id } = useParams<{ id: string }>();
     const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
+    const router = useRouter();
     useEffect(() => {
         const fetchOrderDetails = async () => {
             if (!session_id) {
@@ -62,29 +68,71 @@ function OrderPage() {
         return <p>No order details found.</p>;
     }
 
+    const handleFinishReview = async () => {
+        router.push("/");
+    };
+    console.log("metadata :", orderDetails.mappedLineItems);
     return (
-        <div>
-            <h1>Order Details</h1>
+        <div className='gap-4 p-8'>
+            <h1 className='text-2xl font-bold mb-4'>Order Details</h1>
             <p>
                 <strong>Order ID:</strong> {orderDetails.id}
             </p>
             <p>
-                <strong>Customer Name:</strong> {orderDetails.name}
+                <strong>Customer Name: </strong> {orderDetails.name}
             </p>
             <p>
                 <strong>Email:</strong> {orderDetails.email}
             </p>
             <p>
-                <strong>Description:</strong> {orderDetails.description}
-            </p>
-            <p>
-                <strong>Total Amount:</strong>{" "}
-                {orderDetails.currency.toUpperCase()}{" "}
+                <strong>Total Amount:</strong> {orderDetails.currency}{" "}
                 {(orderDetails.amount_total / 100).toFixed(2)}
             </p>
-            <p>
-                <strong>Quantity:</strong> {orderDetails.quantity}
-            </p>
+
+            {orderDetails.mappedLineItems &&
+            orderDetails.mappedLineItems.length > 0 ? (
+                <div className='flex-col justify-items-center'>
+                    <h2 className='text-xl font-semibold mt-6 mb-4'>
+                        Product Details
+                    </h2>
+                    <div className='space-y-4'>
+                        {orderDetails.mappedLineItems.map(
+                            (product: any, index: number) => (
+                                <div
+                                    key={index}
+                                    className='flex items-center border border-gray-300 rounded-lg p-4 shadow-sm'
+                                >
+                                    <Image
+                                        src={product.imageUrl}
+                                        alt={product.description}
+                                        className=' object-cover rounded-lg'
+                                        width={100}
+                                        height={100}
+                                    />
+                                    <div className='ml-4'>
+                                        <p className='font-medium text-gray-800'>
+                                            <strong>Description:</strong>{" "}
+                                            {product.description}
+                                        </p>
+                                        <p className='text-gray-600'>
+                                            <strong>Quantity:</strong>{" "}
+                                            {product.quantity}
+                                        </p>
+                                    </div>
+                                </div>
+                            ),
+                        )}
+                    </div>
+                </div>
+            ) : (
+                <p>No products found.</p>
+            )}
+            <button
+                onClick={handleFinishReview}
+                className='mt-6 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition flex justify-self-center'
+            >
+                Finish review
+            </button>
         </div>
     );
 }
